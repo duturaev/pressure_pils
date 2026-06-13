@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#1a2744" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -37,11 +37,26 @@
 
     body {
       font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
-      background: var(--cream);
+      background: #0d0d0d;
       color: var(--gray-700);
       min-height: 100vh;
-      padding-bottom: calc(80px + var(--safe-bottom));
       -webkit-font-smoothing: antialiased;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    #app {
+      background: var(--cream);
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      position: relative;
+      padding-bottom: 0;
+      overflow-x: hidden;
+      box-shadow: 0 0 60px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
     }
 
     /* ── HEADER ── */
@@ -88,7 +103,7 @@
     .tab.active { color: var(--teal-light); border-bottom-color: var(--teal-light); }
 
     /* ── SCREENS ── */
-    .screen { display: none; padding: 20px; }
+    .screen { display: none; padding: 20px; flex: 1; }
     .screen.active { display: block; }
 
     /* ── SECTION TITLE ── */
@@ -303,7 +318,7 @@
 
     /* ── BOTTOM NAV ── */
     .bottom-nav {
-      position: fixed;
+      position: sticky;
       bottom: 0; left: 0; right: 0;
       background: var(--navy);
       display: flex;
@@ -379,6 +394,7 @@
   </style>
 </head>
 <body>
+<div id="app">
 
 <div class="header">
   <div class="header-top">
@@ -874,5 +890,6 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/pressure_pils/sw.js').catch(() => {});
 }
 </script>
+</div><!-- #app -->
 </body>
 </html>
