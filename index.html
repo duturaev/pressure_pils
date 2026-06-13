@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a2744" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Здоровье" />
+  <title>Здоровье — Мамура</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png" />
+  <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
+  <meta name="apple-touch-fullscreen" content="yes" />
+  <style>
+    :root {
+      --navy: #1a2744;
+      --navy-light: #253460;
+      --teal: #2a9d8f;
+      --teal-light: #3dbfb0;
+      --amber: #e9c46a;
+      --coral: #e76f51;
+      --cream: #f8f4ef;
+      --gray-100: #f1f0ee;
+      --gray-300: #d4d0ca;
+      --gray-500: #8a8680;
+      --gray-700: #4a4642;
+      --white: #ffffff;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--cream);
+      color: var(--gray-700);
+      min-height: 100vh;
+      padding-bottom: calc(80px + var(--safe-bottom));
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: var(--navy);
+      color: var(--white);
+      padding: calc(var(--safe-top) + 16px) 20px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .header-name { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 2px; }
+    .header-date { font-size: 14px; color: rgba(255,255,255,0.7); }
+    .header-alert {
+      background: var(--coral);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.04em;
+    }
+    .header-alert.ok { background: var(--teal); }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex;
+      background: var(--navy-light);
+      padding: 0 20px;
+    }
+    .tab {
+      flex: 1;
+      padding: 12px 0;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      letter-spacing: 0.02em;
+    }
+    .tab.active { color: var(--teal-light); border-bottom-color: var(--teal-light); }
+
+    /* ── SCREENS ── */
+    .screen { display: none; padding: 20px; }
+    .screen.active { display: block; }
+
+    /* ── SECTION TITLE ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      margin-bottom: 12px;
+      margin-top: 24px;
+    }
+    .section-label:first-child { margin-top: 0; }
+
+    /* ── BP CARD ── */
+    .bp-hero {
+      background: var(--navy);
+      border-radius: var(--radius);
+      padding: 24px 20px 20px;
+      color: white;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .bp-hero::before {
+      content: '';
+      position: absolute;
+      right: -30px; top: -30px;
+      width: 140px; height: 140px;
+      border-radius: 50%;
+      background: rgba(42,157,143,0.15);
+    }
+    .bp-hero-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--teal-light); margin-bottom: 6px; }
+    .bp-hero-value { font-size: 52px; font-weight: 300; letter-spacing: -2px; line-height: 1; }
+    .bp-hero-value span { font-size: 28px; color: rgba(255,255,255,0.6); }
+    .bp-hero-pulse { margin-top: 8px; font-size: 14px; color: rgba(255,255,255,0.65); }
+    .bp-hero-time { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+    .bp-status-badge {
+      position: absolute;
+      right: 20px; top: 24px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    .bp-status-badge.normal { background: rgba(42,157,143,0.25); color: var(--teal-light); }
+    .bp-status-badge.elevated { background: rgba(233,196,106,0.25); color: var(--amber); }
+    .bp-status-badge.high { background: rgba(231,111,81,0.25); color: #ff8b70; }
+
+    /* ── INPUT FORM ── */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 16px;
+    }
+
+    .input-row { display: flex; gap: 10px; margin-bottom: 12px; }
+    .input-group { flex: 1; }
+    .input-group label { display: block; font-size: 11px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+    .input-group input {
+      width: 100%;
+      background: var(--gray-100);
+      border: 2px solid transparent;
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-size: 22px;
+      font-weight: 300;
+      color: var(--navy);
+      text-align: center;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+    .input-group input:focus { outline: none; border-color: var(--teal); background: white; }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--teal);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      letter-spacing: 0.02em;
+    }
+    .btn-primary:active { background: var(--teal-light); transform: scale(0.98); }
+
+    .note-input {
+      width: 100%;
+      background: var(--gray-100);
+      border: 2px solid transparent;
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 14px;
+      color: var(--gray-700);
+      resize: none;
+      height: 60px;
+      font-family: inherit;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+    .note-input:focus { outline: none; border-color: var(--teal); background: white; }
+
+    /* ── BP HISTORY ── */
+    .bp-entry {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .bp-entry:last-child { border-bottom: none; }
+    .bp-entry-values { flex: 1; }
+    .bp-entry-sys { font-size: 20px; font-weight: 600; color: var(--navy); }
+    .bp-entry-sys span { font-size: 14px; font-weight: 400; color: var(--gray-500); }
+    .bp-entry-pulse { font-size: 13px; color: var(--gray-500); margin-top: 2px; }
+    .bp-entry-time { font-size: 12px; color: var(--gray-500); text-align: right; }
+    .bp-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+    .dot-normal { background: var(--teal); }
+    .dot-elevated { background: var(--amber); }
+    .dot-high { background: var(--coral); }
+
+    /* ── MEDICATIONS ── */
+    .med-item {
+      display: flex;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--gray-100);
+      cursor: pointer;
+      user-select: none;
+    }
+    .med-item:last-child { border-bottom: none; }
+    .med-checkbox {
+      width: 26px; height: 26px;
+      border-radius: 8px;
+      border: 2.5px solid var(--gray-300);
+      margin-right: 14px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .med-checkbox.checked { background: var(--teal); border-color: var(--teal); }
+    .med-checkbox.checked::after { content: '✓'; color: white; font-size: 14px; font-weight: 700; }
+    .med-info { flex: 1; }
+    .med-name { font-size: 15px; font-weight: 600; color: var(--navy); }
+    .med-dose { font-size: 13px; color: var(--gray-500); margin-top: 2px; }
+    .med-time-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 4px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+    .tag-morning { background: rgba(233,196,106,0.2); color: #b8872a; }
+    .tag-evening { background: rgba(26,39,68,0.12); color: var(--navy); }
+    .tag-course { background: rgba(42,157,143,0.15); color: var(--teal); }
+
+    .progress-bar-wrap {
+      background: var(--gray-100);
+      border-radius: 20px;
+      height: 6px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 20px;
+      background: var(--teal);
+      transition: width 0.4s ease;
+    }
+    .progress-label { font-size: 12px; color: var(--gray-500); margin-top: 6px; }
+
+    /* ── CHART ── */
+    .chart-wrap {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    #bpChart { width: 100%; height: 160px; }
+
+    /* ── STATS GRID ── */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .stat-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--gray-500); margin-bottom: 6px; }
+    .stat-value { font-size: 28px; font-weight: 300; color: var(--navy); line-height: 1; }
+    .stat-unit { font-size: 12px; color: var(--gray-500); margin-top: 4px; }
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--navy);
+      display: flex;
+      padding: 8px 0 calc(8px + var(--safe-bottom));
+      z-index: 100;
+    }
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 8px 0;
+      opacity: 0.45;
+      transition: opacity 0.2s;
+    }
+    .nav-item.active { opacity: 1; }
+    .nav-icon { font-size: 22px; }
+    .nav-label { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; color: var(--white); text-transform: uppercase; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      top: calc(var(--safe-top) + 80px);
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: var(--navy);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 200;
+      white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── EMPTY STATE ── */
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--gray-500); }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-text { font-size: 14px; line-height: 1.6; }
+
+    /* ── ALERT BANNER ── */
+    .alert-banner {
+      background: rgba(231,111,81,0.12);
+      border: 1.5px solid rgba(231,111,81,0.35);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .alert-banner.hidden { display: none; }
+    .alert-icon { font-size: 18px; flex-shrink: 0; }
+    .alert-text { font-size: 13px; color: var(--coral); font-weight: 600; line-height: 1.5; }
+
+    /* ── DELETE BTN ── */
+    .delete-btn {
+      background: none;
+      border: none;
+      color: var(--gray-300);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px;
+      margin-left: 8px;
+    }
+    .delete-btn:active { color: var(--coral); }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-name">Мамура Дутураева</div>
+      <div class="header-date" id="headerDate"></div>
+    </div>
+    <div class="header-alert ok" id="statusPill">Всё хорошо</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('bp')">💊 АД</div>
+  <div class="tab" onclick="switchTab('meds')">💊 Лекарства</div>
+  <div class="tab" onclick="switchTab('history')">📊 История</div>
+</div>
+
+<!-- ── SCREEN: BP ── -->
+<div class="screen active" id="screen-bp">
+
+  <div id="alertBanner" class="alert-banner hidden">
+    <div class="alert-icon">⚠️</div>
+    <div class="alert-text" id="alertText"></div>
+  </div>
+
+  <div id="bpHero" class="bp-hero" style="display:none">
+    <div class="bp-hero-label">Последнее измерение</div>
+    <div class="bp-hero-value" id="heroValue">—</div>
+    <div class="bp-hero-pulse" id="heroPulse"></div>
+    <div class="bp-hero-time" id="heroTime"></div>
+    <div class="bp-status-badge" id="heroBadge"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Измерить АД</div>
+    <div class="input-row">
+      <div class="input-group">
+        <label>Систолическое</label>
+        <input type="number" id="sys" placeholder="120" inputmode="numeric" min="60" max="250" />
+      </div>
+      <div class="input-group">
+        <label>Диастолическое</label>
+        <input type="number" id="dia" placeholder="80" inputmode="numeric" min="40" max="150" />
+      </div>
+      <div class="input-group">
+        <label>Пульс</label>
+        <input type="number" id="pulse" placeholder="72" inputmode="numeric" min="30" max="200" />
+      </div>
+    </div>
+    <textarea class="note-input" id="bpNote" placeholder="Заметка (необязательно): самочувствие, симптомы…"></textarea>
+    <button class="btn-primary" onclick="saveBP()">Сохранить измерение</button>
+  </div>
+
+  <div class="stats-grid" id="statsGrid" style="display:none">
+    <div class="stat-card">
+      <div class="stat-label">Среднее АД</div>
+      <div class="stat-value" id="avgBP">—</div>
+      <div class="stat-unit">за 7 дней</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Измерений</div>
+      <div class="stat-value" id="countBP">0</div>
+      <div class="stat-unit">всего</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── SCREEN: MEDS ── -->
+<div class="screen" id="screen-meds">
+
+  <div class="card">
+    <div class="card-title">Сегодня, <span id="medsDate"></span></div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="medsProgress" style="width:0%"></div>
+    </div>
+    <div class="progress-label" id="medsProgressLabel">0 из 4 препаратов принято</div>
+
+    <div style="margin-top:16px" id="medsList"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Курс капельниц (с 08.06.2026)</div>
+    <div id="courseMedsList"></div>
+  </div>
+
+</div>
+
+<!-- ── SCREEN: HISTORY ── -->
+<div class="screen" id="screen-history">
+
+  <div class="chart-wrap">
+    <div class="card-title">АД за 14 дней</div>
+    <canvas id="bpChart"></canvas>
+  </div>
+
+  <div class="section-label">Все измерения</div>
+  <div class="card" id="historyList">
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <div class="empty-text">Пока нет измерений.<br>Добавьте первое на вкладке АД.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA LAYER ──
+const STORAGE_KEY = 'mamura_health_v2';
+
+function loadData() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { bp: [], meds: {} };
+  } catch { return { bp: [], meds: {} }; }
+}
+
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+// ── MEDS CONFIG ──
+const PERMANENT_MEDS = [
+  { id: 'valsacor', name: 'Валсакор 80 мг', dose: '½ таблетки', time: 'morning', tag: 'Утром', note: 'Натощак или с едой' },
+  { id: 'vitd3k2', name: 'Витамин Д3 3000 МЕ + К2', dose: '1 таблетка', time: 'morning', tag: 'Утром', note: 'Во время еды' },
+  { id: 'zilt', name: 'Зилт 75 мг (Клопидогрел)', dose: '1 таблетка', time: 'evening', tag: 'Вечером', note: 'Во время еды' },
+  { id: 'rozulip', name: 'Розулип Плюс 20/10', dose: '1 таблетка', time: 'evening', tag: 'Вечером', note: 'Розувастатин + Эзетимиб' },
+];
+
+const COURSE_MEDS = [
+  { id: 'citicoline', name: 'Цитиколин 500 мг', dose: 'в/в кап. × 10 дней', tag: 'Курс', startDay: 1 },
+  { id: 'cerebrolysin', name: 'Церебролизин 50 мл', dose: 'в/в кап. × 10 дней', tag: 'Курс', startDay: 1 },
+  { id: 'tivortin', name: 'Тивортин (L-аргинин) 100 мл', dose: 'в/в кап. × 5 дней', tag: 'Курс', startDay: 1 },
+  { id: 'llisin', name: 'L-лизина эсцинат', dose: '× 5 дней', tag: 'Курс', startDay: 1 },
+  { id: 'clexane', name: 'Клексан 0.6 мг', dose: 'п/к', tag: 'Курс', startDay: 1 },
+  { id: 'ketoprofen', name: 'Кетопрофен 100 мг', dose: '× 3 дня', tag: 'Курс', startDay: 1 },
+];
+
+// ── HELPERS ──
+function todayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function formatDate(isoStr) {
+  const d = new Date(isoStr);
+  return d.toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
+function formatShortDate(isoStr) {
+  const d = new Date(isoStr);
+  return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+}
+
+function bpStatus(sys, dia) {
+  if (sys >= 180 || dia >= 110) return { label: 'Высокое', cls: 'high', dotCls: 'dot-high' };
+  if (sys >= 140 || dia >= 90) return { label: 'Повышено', cls: 'elevated', dotCls: 'dot-elevated' };
+  if (sys >= 130 || dia >= 85) return { label: 'Погранично', cls: 'elevated', dotCls: 'dot-elevated' };
+  return { label: 'Норма', cls: 'normal', dotCls: 'dot-normal' };
+}
+
+function showToast(msg, duration = 2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ── TABS ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((el, i) => {
+    el.classList.toggle('active', ['bp','meds','history'][i] === tab);
+  });
+  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+  document.getElementById('screen-' + tab).classList.add('active');
+  if (tab === 'history') renderHistory();
+  if (tab === 'meds') renderMeds();
+}
+
+// ── SAVE BP ──
+function saveBP() {
+  const sys = parseInt(document.getElementById('sys').value);
+  const dia = parseInt(document.getElementById('dia').value);
+  const pulse = parseInt(document.getElementById('pulse').value) || null;
+  const note = document.getElementById('bpNote').value.trim();
+
+  if (!sys || !dia || sys < 60 || dia < 40) {
+    showToast('Введите корректные значения АД');
+    return;
+  }
+
+  const data = loadData();
+  const entry = { id: Date.now(), ts: new Date().toISOString(), sys, dia, pulse, note };
+  data.bp.unshift(entry);
+  saveData(data);
+
+  document.getElementById('sys').value = '';
+  document.getElementById('dia').value = '';
+  document.getElementById('pulse').value = '';
+  document.getElementById('bpNote').value = '';
+
+  renderBPHero(data);
+  showToast('✓ Измерение сохранено');
+  checkAlerts(sys, dia);
+}
+
+function checkAlerts(sys, dia) {
+  const banner = document.getElementById('alertBanner');
+  const pill = document.getElementById('statusPill');
+  if (sys >= 160 || dia >= 100) {
+    document.getElementById('alertText').textContent =
+      `⚠️ АД ${sys}/${dia} — значительно выше нормы. Отдохните, проверьте снова через 15 минут. Если давление не снизится — обратитесь к врачу.`;
+    banner.classList.remove('hidden');
+    pill.textContent = '⚠️ Высокое АД';
+    pill.className = 'header-alert';
+  } else if (sys >= 140 || dia >= 90) {
+    document.getElementById('alertText').textContent =
+      `АД ${sys}/${dia} — повышено. Избегайте нагрузок, отдохните.`;
+    banner.classList.remove('hidden');
+    pill.textContent = 'Повышено';
+    pill.className = 'header-alert';
+  } else {
+    banner.classList.add('hidden');
+    pill.textContent = 'Всё хорошо';
+    pill.className = 'header-alert ok';
+  }
+}
+
+// ── RENDER BP HERO ──
+function renderBPHero(data) {
+  if (!data.bp.length) return;
+  const last = data.bp[0];
+  const status = bpStatus(last.sys, last.dia);
+
+  document.getElementById('bpHero').style.display = 'block';
+  document.getElementById('heroValue').innerHTML = `${last.sys}<span>/${last.dia}</span>`;
+  document.getElementById('heroPulse').textContent = last.pulse ? `♥ Пульс: ${last.pulse} уд/мин` : '';
+  document.getElementById('heroTime').textContent = formatDate(last.ts);
+  const badge = document.getElementById('heroBadge');
+  badge.textContent = status.label;
+  badge.className = `bp-status-badge ${status.cls}`;
+
+  // stats
+  const recent = data.bp.slice(0, 14);
+  const avgSys = Math.round(recent.reduce((a, b) => a + b.sys, 0) / recent.length);
+  const avgDia = Math.round(recent.reduce((a, b) => a + b.dia, 0) / recent.length);
+  document.getElementById('avgBP').textContent = `${avgSys}/${avgDia}`;
+  document.getElementById('countBP').textContent = data.bp.length;
+  document.getElementById('statsGrid').style.display = 'grid';
+}
+
+// ── RENDER MEDS ──
+function renderMeds() {
+  const data = loadData();
+  const today = todayKey();
+  const todayMeds = data.meds[today] || {};
+
+  document.getElementById('medsDate').textContent = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+
+  // Permanent meds
+  const list = document.getElementById('medsList');
+  list.innerHTML = '';
+  let checked = 0;
+
+  PERMANENT_MEDS.forEach(med => {
+    const isDone = !!todayMeds[med.id];
+    if (isDone) checked++;
+    const div = document.createElement('div');
+    div.className = 'med-item';
+    div.innerHTML = `
+      <div class="med-checkbox ${isDone ? 'checked' : ''}"></div>
+      <div class="med-info">
+        <div class="med-name" style="${isDone ? 'text-decoration:line-through;opacity:0.5' : ''}">${med.name}</div>
+        <div class="med-dose">${med.dose} — ${med.note}</div>
+      </div>
+      <span class="med-time-tag ${med.time === 'morning' ? 'tag-morning' : 'tag-evening'}">${med.tag}</span>
+    `;
+    div.onclick = () => toggleMed(med.id);
+    list.appendChild(div);
+  });
+
+  const pct = Math.round((checked / PERMANENT_MEDS.length) * 100);
+  document.getElementById('medsProgress').style.width = pct + '%';
+  document.getElementById('medsProgressLabel').textContent = `${checked} из ${PERMANENT_MEDS.length} препаратов принято`;
+
+  // Course meds
+  const courseList = document.getElementById('courseMedsList');
+  courseList.innerHTML = '';
+  COURSE_MEDS.forEach(med => {
+    const isDone = !!todayMeds[med.id];
+    const div = document.createElement('div');
+    div.className = 'med-item';
+    div.innerHTML = `
+      <div class="med-checkbox ${isDone ? 'checked' : ''}"></div>
+      <div class="med-info">
+        <div class="med-name" style="${isDone ? 'text-decoration:line-through;opacity:0.5' : ''}">${med.name}</div>
+        <div class="med-dose">${med.dose}</div>
+      </div>
+      <span class="med-time-tag tag-course">${med.tag}</span>
+    `;
+    div.onclick = () => toggleMed(med.id, true);
+    courseList.appendChild(div);
+  });
+}
+
+function toggleMed(id, isCourse = false) {
+  const data = loadData();
+  const today = todayKey();
+  if (!data.meds[today]) data.meds[today] = {};
+  if (data.meds[today][id]) {
+    delete data.meds[today][id];
+    showToast('Отмечено как не принято');
+  } else {
+    data.meds[today][id] = new Date().toISOString();
+    showToast('✓ Принято');
+  }
+  saveData(data);
+  renderMeds();
+}
+
+// ── HISTORY + CHART ──
+function renderHistory() {
+  const data = loadData();
+  const list = document.getElementById('historyList');
+
+  if (!data.bp.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">Пока нет измерений.<br>Добавьте первое на вкладке АД.</div></div>`;
+    drawChart([]);
+    return;
+  }
+
+  list.innerHTML = '';
+  data.bp.forEach(entry => {
+    const status = bpStatus(entry.sys, entry.dia);
+    const div = document.createElement('div');
+    div.className = 'bp-entry';
+    div.innerHTML = `
+      <div class="bp-dot ${status.dotCls}"></div>
+      <div class="bp-entry-values">
+        <div class="bp-entry-sys">${entry.sys}<span>/${entry.dia} мм рт.ст.</span></div>
+        <div class="bp-entry-pulse">${entry.pulse ? `♥ ${entry.pulse} уд/мин` : ''}${entry.note ? ` · ${entry.note}` : ''}</div>
+      </div>
+      <div>
+        <div class="bp-entry-time">${formatDate(entry.ts)}</div>
+        <button class="delete-btn" onclick="deleteBP(${entry.id})">✕</button>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+
+  drawChart(data.bp);
+}
+
+function deleteBP(id) {
+  const data = loadData();
+  data.bp = data.bp.filter(e => e.id !== id);
+  saveData(data);
+  renderHistory();
+  renderBPHero(data);
+  showToast('Запись удалена');
+}
+
+// ── SIMPLE CANVAS CHART ──
+function drawChart(entries) {
+  const canvas = document.getElementById('bpChart');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth;
+  const H = 160;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  ctx.scale(dpr, dpr);
+
+  ctx.clearRect(0, 0, W, H);
+
+  if (entries.length < 2) {
+    ctx.fillStyle = '#8a8680';
+    ctx.font = '13px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Добавьте минимум 2 измерения', W/2, H/2);
+    return;
+  }
+
+  const recent = [...entries].reverse().slice(-14);
+  const pad = { top: 16, bottom: 24, left: 8, right: 8 };
+  const chartW = W - pad.left - pad.right;
+  const chartH = H - pad.top - pad.bottom;
+
+  const allVals = recent.flatMap(e => [e.sys, e.dia]);
+  const minV = Math.min(...allVals) - 10;
+  const maxV = Math.max(...allVals) + 10;
+
+  function xPos(i) { return pad.left + (i / (recent.length - 1)) * chartW; }
+  function yPos(v) { return pad.top + chartH - ((v - minV) / (maxV - minV)) * chartH; }
+
+  // grid lines
+  [120, 140, 160].forEach(v => {
+    if (v < maxV && v > minV) {
+      ctx.beginPath();
+      ctx.strokeStyle = v === 140 ? 'rgba(231,111,81,0.3)' : 'rgba(0,0,0,0.07)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash(v === 140 ? [4, 4] : []);
+      ctx.moveTo(pad.left, yPos(v));
+      ctx.lineTo(W - pad.right, yPos(v));
+      ctx.stroke();
+      ctx.setLineDash([]);
+      if (v === 140) {
+        ctx.fillStyle = 'rgba(231,111,81,0.6)';
+        ctx.font = '10px -apple-system';
+        ctx.textAlign = 'right';
+        ctx.fillText('140', W - pad.right, yPos(v) - 3);
+      }
+    }
+  });
+
+  // SYS line
+  ctx.beginPath();
+  recent.forEach((e, i) => {
+    i === 0 ? ctx.moveTo(xPos(i), yPos(e.sys)) : ctx.lineTo(xPos(i), yPos(e.sys));
+  });
+  ctx.strokeStyle = '#2a9d8f';
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // DIA line
+  ctx.beginPath();
+  recent.forEach((e, i) => {
+    i === 0 ? ctx.moveTo(xPos(i), yPos(e.dia)) : ctx.lineTo(xPos(i), yPos(e.dia));
+  });
+  ctx.strokeStyle = '#e9c46a';
+  ctx.lineWidth = 1.5;
+  ctx.lineJoin = 'round';
+  ctx.setLineDash([4, 3]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // dots SYS
+  recent.forEach((e, i) => {
+    const status = bpStatus(e.sys, e.dia);
+    ctx.beginPath();
+    ctx.arc(xPos(i), yPos(e.sys), 4, 0, Math.PI * 2);
+    ctx.fillStyle = status.cls === 'high' ? '#e76f51' : status.cls === 'elevated' ? '#e9c46a' : '#2a9d8f';
+    ctx.fill();
+  });
+
+  // date labels
+  ctx.fillStyle = '#8a8680';
+  ctx.font = '10px -apple-system';
+  ctx.textAlign = 'center';
+  const step = Math.ceil(recent.length / 5);
+  recent.forEach((e, i) => {
+    if (i % step === 0 || i === recent.length - 1) {
+      ctx.fillText(formatShortDate(e.ts), xPos(i), H - 4);
+    }
+  });
+
+  // legend
+  ctx.fillStyle = '#2a9d8f';
+  ctx.fillRect(pad.left, 4, 16, 3);
+  ctx.fillStyle = '#4a4642';
+  ctx.font = '10px -apple-system';
+  ctx.textAlign = 'left';
+  ctx.fillText('Сист.', pad.left + 20, 9);
+
+  ctx.fillStyle = '#e9c46a';
+  ctx.fillRect(pad.left + 60, 4, 16, 3);
+  ctx.fillStyle = '#4a4642';
+  ctx.fillText('Диаст.', pad.left + 80, 9);
+}
+
+// ── INIT ──
+function init() {
+  const now = new Date();
+  document.getElementById('headerDate').textContent = now.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+  document.getElementById('medsDate').textContent = now.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+
+  const data = loadData();
+  renderBPHero(data);
+
+  // check last bp for alert
+  if (data.bp.length) {
+    const last = data.bp[0];
+    const hrs = (Date.now() - new Date(last.ts)) / 3600000;
+    if (hrs < 1) checkAlerts(last.sys, last.dia);
+  }
+}
+
+init();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
