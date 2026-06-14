@@ -82,29 +82,34 @@
     }
     .header-alert.ok { background: var(--teal); }
 
-    /* ── TABS ── */
+    /* ── BOTTOM NAV (TABS) ── */
     .tabs {
       display: flex;
-      background: var(--navy-light);
-      padding: 0 20px;
+      background: var(--navy);
+      padding: 6px 8px calc(6px + var(--safe-bottom));
+      position: sticky;
+      bottom: 0;
+      z-index: 100;
+      border-top: 1px solid rgba(255,255,255,0.06);
     }
     .tab {
       flex: 1;
-      padding: 12px 0;
+      padding: 8px 2px;
       text-align: center;
-      font-size: 13px;
+      font-size: 11px;
       font-weight: 600;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.45);
       cursor: pointer;
-      border-bottom: 3px solid transparent;
+      border-radius: 12px;
       transition: all 0.2s;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.01em;
+      line-height: 1.4;
     }
-    .tab.active { color: var(--teal-light); border-bottom-color: var(--teal-light); }
+    .tab.active { color: var(--teal-light); background: rgba(42,157,143,0.15); }
 
     /* ── SCREENS ── */
     .screen { display: none; padding: 20px; flex: 1; }
-    .screen.active { display: block; }
+    .screen.active { display: flex; flex-direction: column; }
 
     /* ── SECTION TITLE ── */
     .section-label {
@@ -316,29 +321,6 @@
     .stat-value { font-size: 28px; font-weight: 300; color: var(--navy); line-height: 1; }
     .stat-unit { font-size: 12px; color: var(--gray-500); margin-top: 4px; }
 
-    /* ── BOTTOM NAV ── */
-    .bottom-nav {
-      position: sticky;
-      bottom: 0; left: 0; right: 0;
-      background: var(--navy);
-      display: flex;
-      padding: 8px 0 calc(8px + var(--safe-bottom));
-      z-index: 100;
-    }
-    .nav-item {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-      padding: 8px 0;
-      opacity: 0.45;
-      transition: opacity 0.2s;
-    }
-    .nav-item.active { opacity: 1; }
-    .nav-icon { font-size: 22px; }
-    .nav-label { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; color: var(--white); text-transform: uppercase; }
 
     /* ── TOAST ── */
     .toast {
@@ -866,15 +848,6 @@
   </div>
 </div>
 
-<div class="tabs">
-  <div class="tab active" onclick="switchTab('bp')">❤️ АД</div>
-  <div class="tab" onclick="switchTab('meds')">💊 Приём</div>
-  <div class="tab" onclick="switchTab('add')">➕ Препарат</div>
-  <div class="tab" onclick="switchTab('history')">📊 История</div>
-  <div class="tab" onclick="switchTab('notif')">🔔</div>
-  <div class="tab" onclick="switchTab('profile')">👤</div>
-</div>
-
 <!-- ── SCREEN: BP ── -->
 <div class="screen active" id="screen-bp">
 
@@ -1365,6 +1338,15 @@
   </div>
 </div>
 
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('bp')">❤️<br>АД</div>
+  <div class="tab" onclick="switchTab('meds')">💊<br>Приём</div>
+  <div class="tab" onclick="switchTab('add')">➕<br>Препарат</div>
+  <div class="tab" onclick="switchTab('history')">📊<br>История</div>
+  <div class="tab" onclick="switchTab('notif')">🔔<br>Напоминания</div>
+  <div class="tab" onclick="switchTab('profile')">👤<br>Профиль</div>
+</div>
 </div><!-- #app -->
 <script>
 // ── DATA LAYER ──
